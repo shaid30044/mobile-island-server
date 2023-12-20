@@ -29,12 +29,32 @@ async function run() {
     // await client.db("admin").command({ ping: 1 });
 
     const mobileCollection = client.db("mobileDB").collection("mobiles");
+    const userCollection = client.db("mobileDB").collection("users");
 
     //   mobile apis
 
     app.get("/mobiles", async (req, res) => {
       const cursor = mobileCollection.find();
       const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
+    // user apis
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const existingUser = await userCollection.findOne(query);
+
+      if (existingUser) {
+        return res.send({
+          message: "This user already exist.",
+          insertedId: null,
+        });
+      }
+
+      const result = await userCollection.insertOne(user);
 
       res.send(result);
     });
